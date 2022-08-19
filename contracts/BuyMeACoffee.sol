@@ -1,22 +1,67 @@
 //SPDX-License-Identifier: Unlicense
 pragma solidity ^0.8.0;
 
-import "hardhat/console.sol";
+contract BuyMeACoffee {
+    //Event to emit when a Memo is created
+    event NewMemo(
+        address indexed from,
+        uint256 timestamp,
+        string name,
+        string message
+    );
 
-contract Greeter {
-    string private greeting;
-
-    constructor(string memory _greeting) {
-        console.log("Deploying a Greeter with greeting:", _greeting);
-        greeting = _greeting;
+    //Memo Struct
+    struct Memo {
+        address from;
+        uint256 timestamp;
+        string name;
+        string message;
     }
 
-    function greet() public view returns (string memory) {
-        return greeting;
+    //List of all memos received from friends.
+    Memo[] memos;
+
+    //Address of contract deployer.
+    address payable owner;
+
+    //runs upon deployment
+    constructor() {
+        owner = payable(msg.sender);
     }
 
-    function setGreeting(string memory _greeting) public {
-        console.log("Changing greeting from '%s' to '%s'", greeting, _greeting);
-        greeting = _greeting;
+    /**
+     *@dev to buy a coffee for a contract owner
+     *@param _name name of the coffee buyer
+     *@param _message a nice message from the coffee buyer  
+    */
+    function buyCoffee(string memory _name, string memory _message) public payable {
+        require(msg.value > 0, "can't buy coffee with 0 eth");
+
+        //Add the memo to storage
+        memos.push(Memo(
+            msg.sender,
+            block.timestamp,
+            _name,
+            _message
+        ));
+
+        //Emit a log event when a new memo is created
+        emit NewMemo(msg.sender, block.timestamp, _name, _message);
+    }   
+
+    /**
+     *@dev send to entire balance stored in this contract to the owner 
+    */
+    function withdrawTips() public {
+        require(owner.send(address(this).balance));
     }
+
+    /**
+     *@dev retrieve all the memos received and stored on the blockchain 
+    */
+    function getMemos() public view returns(Memo[] memory) {
+        return memos;
+    }
+
+
 }
