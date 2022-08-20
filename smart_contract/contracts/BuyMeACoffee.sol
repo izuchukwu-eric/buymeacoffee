@@ -1,6 +1,8 @@
 //SPDX-License-Identifier: Unlicense
 pragma solidity ^0.8.0;
 
+//contract deployed to 0x67Dc89245e7b48F228C27E7699ACd42E7E2A37C4
+
 contract BuyMeACoffee {
     //Event to emit when a Memo is created
     event NewMemo(
